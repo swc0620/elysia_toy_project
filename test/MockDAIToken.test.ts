@@ -10,7 +10,7 @@ const { deployContract } = waffle;
 describe("MockDAIToken", () => {
     let mockDAIToken: MockDAIToken;
 
-    const [admin, backer1, backer2] = waffle.provider.getWallets();
+    const [admin, backer1] = waffle.provider.getWallets();
 
     beforeEach(async () => {
         mockDAIToken = await deployContract(
