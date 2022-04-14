@@ -23,14 +23,14 @@ describe("MockDAIToken", () => {
         ) as MockDAIToken;
     });
 
-    context('when MockDAIToken has been minted', async () => {
+    context('when new MockDAIToken is minted', async () => {
         it('has given data', async () => {
             expect(await mockDAIToken.totalSupply()).to.be.equal(BigNumber.from(utils.parseEther("10000")));
             expect(await mockDAIToken.name()).to.be.equal("MockDAIToken");
             expect(await mockDAIToken.symbol()).to.be.equal("MDAI");
         });
 
-        it('distributes MDAI via faucest', async () => {
+        it('distributes MDAI via faucet', async () => {
             await mockDAIToken.connect(backer1).faucet();
             expect(await mockDAIToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("1")));
         });
