@@ -6,10 +6,9 @@ import './Project.sol';
 contract ProjectFactory {
     address[] public createdProjects;
 
-    function createProject(string memory description_, uint minimumBacking_, address manufacturer_) external returns (address) {
+    function createProject(string memory description_, uint minimumBacking_, address manufacturer_) external {
         Project newProject = new Project(msg.sender, description_, minimumBacking_, manufacturer_);
         createdProjects.push(address(newProject));
-        return address(newProject);
     }
 
     function getProjects() public view returns (address[] memory) {
