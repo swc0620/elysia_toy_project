@@ -1,11 +1,8 @@
 # Kick-fianance
 ## What is Kick-finance?
----
 * Kick-finance is a toy project developed by Woochul Shin as a part of the internship in Elysia.
 * Kick-finance aims to decentralise the process of crowd funding, eliminates the role of intermediary and replaces it with smart contracts.
----
 ## Overview
----
 ### Data Structures
 
 #### 1. ProjectFactory Contract
@@ -172,6 +169,5 @@ bool public finalised
   - Transfers `backing` from ProjectContract to `msg.sender`
 
 ## Dependencies
----
 * Solidity (0.8.4)
 * Hardhat
