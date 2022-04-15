@@ -13,7 +13,12 @@ const config: HardhatUserConfig = {
     admin: 0,
   },
   networks: {
-    hardhat: {},
+    hardhat: {
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`,
+        blockNumber: 14589691
+      }
+    },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: process.env.ADMIN !== undefined ? [process.env.ADMIN] : [""],

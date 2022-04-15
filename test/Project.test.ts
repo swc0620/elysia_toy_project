@@ -1,4 +1,4 @@
-import { waffle } from "hardhat";
+import hre, { ethers, waffle } from "hardhat";
 import { expect } from "chai";
 import { BigNumber, utils } from "ethers";
 
@@ -13,8 +13,15 @@ describe("Project", () => {
     const [proposer, manufacturer, backer1, backer2] = waffle.provider.getWallets();
 
     beforeEach(async () => {
+        await hre.network.provider.request({
+            method: "hardhat_impersonateAccount",
+            params: ["0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0"],
+        });
+
+        const signer = await ethers.getSigner("0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0");
+        
         project = await deployContract(
-            proposer,
+            signer,
             ProjectArtifact,
             [
                 proposer.address, 
@@ -24,6 +31,7 @@ describe("Project", () => {
                 10
             ]
         ) as Project;
+
     });
 
     context("when new Project is deployed", async () => {
@@ -35,6 +43,7 @@ describe("Project", () => {
         });
 
         it('starts backingTime', async () => {
+
             expect((await project.backingTime()).open).to.be.equal(true);
             expect((await project.backingTime()).closeTime).to.be.above(0);
         });

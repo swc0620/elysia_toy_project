@@ -14,7 +14,7 @@ contract Project {
 
     DueTime public backingTime;
 
-    constructor(address proposer_, string memory description_, uint minimumBacking_, address manufacturer_, uint backingDuration_) {
+    constructor(address proposer_, string memory description_, uint minimumBacking_, address manufacturer_, uint backingDuration_) {        
         proposer = proposer_;
         description = description_;
         minimumBacking = minimumBacking_;
@@ -23,15 +23,16 @@ contract Project {
         _startBacking(backingDuration_);
     }
 
-    modifier isProposer() {
-        require(msg.sender == proposer, 'Not proposer');
-        _;
-    }
-
     function _startBacking(uint backingDuration_) private {
         require(backingTime.open == false);
         
         backingTime.open = true;
         backingTime.closeTime = block.timestamp + backingDuration_;
+    }
+
+    function backProject() external payable {
+        require(backingTime.open == true);
+        require(block.timestamp < backingTime.closeTime);
+        require(msg.value > minimumBacking);
     }
 }
