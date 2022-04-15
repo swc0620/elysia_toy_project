@@ -52,17 +52,17 @@ bool public finalised
 
     createProject creates and deploys new project contract and initialises its minimumBacking amount and the address of proposer.
 
-- Effects:
+   - Effects:
 
-  - address newProject = new Project(minimumBacking, msg.sender);
-  - createdProjects.push(newProject);
+     - address newProject = new Project(minimumBacking, msg.sender);
+     - createdProjects.push(newProject);
 2. getCreatedProjects()
 
     getCreatedProjects returns all addresses of created and deployed projects
 
-- Effects:
+   - Effects:
 
-  - return createdProjects;
+     - return createdProjects;
 
 #### 2. Project Contract
 
@@ -70,104 +70,104 @@ bool public finalised
 
     startBacking sets when the backing will be closed.
 
-- Check:
+   - Check:
 
-  - backingTime.open == false
+     - backingTime.open == false
 
-- Effects:
+   - Effects:
 
-  - backingTime.open = true
-  - backingTime.closeTime = block.timestamp + backingDuration
+     - backingTime.open = true
+     - backingTime.closeTime = block.timestamp + backingDuration
 
 2. backProject(uint newBacking)
 
     backProject allows backers to participate in backing the project. If a backer has already backed the project, the backer can only increase the amount of backing and cannot retrieve the backing.
 
-- Check:
+   - Check:
 
-  - backingTime.open == true
-  - block.timestamp < backingTime.closeTime
-  - msg.value > minimumBacking
+     - backingTime.open == true
+     - block.timestamp < backingTime.closeTime
+     - msg.value > minimumBacking
 
-- Effects:
+   - Effects:
 
-  - backings[msg.sender] += newBacking
-  - backersCount++
-  - totalBacking += backing
-  - transfer(DEFI-POOL-CONTRACT-ADDRESS, backing)
+     - backings[msg.sender] += newBacking
+     - backersCount++
+     - totalBacking += backing
+     - transfer(DEFI-POOL-CONTRACT-ADDRESS, backing)
 
-- Interaction:
+   - Interaction:
 
-  - Transfers `backing` from `msg.sender` to ProjectContract
-  - Transfers `backing` from ProjectContract to De-fi Pool Contract
-  - Emits `BackingCreated`
+     - Transfers `backing` from `msg.sender` to ProjectContract
+     - Transfers `backing` from ProjectContract to De-fi Pool Contract
+     - Emits `BackingCreated`
   
 3. startVote(uint votingDuration)
 
     holdVote allows proposer to hold vote on whether or not to proceed the project. If the vote gets approvals from more than half of the backers, the project can be finalised by the proposer.
 
-- Check:
+   - Check:
 
-  - backingTime.open == false
-  - block.timestamp > backingTime.closeTime
-  - msg.sender == proposer
+     - backingTime.open == false
+     - block.timestamp > backingTime.closeTime
+     - msg.sender == proposer
 
-- Effects:
+   - Effects:
 
-  - votingTime.open = true
-  - votingTime.closeTime = block.timestamp + votingDuration
+     - votingTime.open = true
+     - votingTime.closeTime = block.timestamp + votingDuration
   - 
 4. approveProject()
 
     approveProject allows backers to cast approval vote to the project.
 
-- Check:
+   - Check:
 
-  - votingTime.open == true
-  - block.timestamp < votingTime.closeTime
-  - backings[msg.sender] > 0
-  - approvals[msg.sender] == false
+     - votingTime.open == true
+     - block.timestamp < votingTime.closeTime
+     - backings[msg.sender] > 0
+     - approvals[msg.sender] == false
 
-- Effects:
+   - Effects:
 
-  - approvals[msg.sender] = true
-  - approvalCount++
-  - 
+     - approvals[msg.sender] = true
+     - approvalCount++
+
 5. finaliseProject()
 
     finaliseProject allows proposer to finalise the project. The Project Contract retrieves the liquidity provided to the De-fi Pool Contract. If more than half of the backers have approved the project, then the backing is transfered to the manufacturer.
 
-- Check:
+   - Check:
 
-  - block.timestamp > votingTime.closeTime
-  - msg.sender == proposer
+     - block.timestamp > votingTime.closeTime
+     - msg.sender == proposer
 
-- Effects:
+   - Effects:
 
-  - Retrieves the liquidity from De-fi Pool Contract
-  - finalised = true
-  - approvalCount > backersCount / 2
-      - approved = true
-      - transfer(manufacturer, backing)
+     - Retrieves the liquidity from De-fi Pool Contract
+     - finalised = true
+     - approvalCount > backersCount / 2
+         - approved = true
+         - transfer(manufacturer, backing)
 
-- Interaction:
+   - Interaction:
 
-  - Transfers `backing` from De-fi Pool Contract to ProjectContract
-  - Transfers `backing` from ProjectContract to `manufacturer`
-  - Emits `ProjectFinalised`
+     - Transfers `backing` from De-fi Pool Contract to ProjectContract
+     - Transfers `backing` from ProjectContract to `manufacturer`
+     - Emits `ProjectFinalised`
   
 6. retrieveBacking()
 
     retrieveBacking allows backers to retrieve their backings after the project has been finalised and the project has not received approvals from more than half of the all the backers.
 
-- Check:
+   - Check:
 
-  - finalised == true
-  - approved == false
+     - finalised == true
+     - approved == false
 
-- Interaction:
+   - Interaction:
 
-  - Transfers `backing` from ProjectContract to `msg.sender`
+     - Transfers `backing` from ProjectContract to `msg.sender`
 
 ## Dependencies
 * Solidity (0.8.4)
