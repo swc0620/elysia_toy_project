@@ -3,6 +3,7 @@
 * Kick-finance is a toy project developed by Woochul Shin as a part of the internship in Elysia.
 * Kick-finance aims to decentralise the process of crowd funding, eliminates the role of intermediary and replaces it with smart contracts.
 ## Overview
+![overviewImg](https://raw.githubusercontent.com/elysia-dev/kick-finance/main/Overview.png)
 ### Data Structures
 
 #### 1. ProjectFactory Contract
