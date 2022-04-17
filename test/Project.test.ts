@@ -28,7 +28,6 @@ describe("Project", () => {
                 "New Battery", 
                 BigNumber.from(utils.parseEther("0.01")), 
                 manufacturer.address, 
-                10
             ]
         ) as Project;
 
@@ -43,7 +42,7 @@ describe("Project", () => {
         });
 
         it('starts backingTime', async () => {
-
+            await project.startBacking(10);
             expect((await project.backingTime()).open).to.be.equal(true);
             expect((await project.backingTime()).closeTime).to.be.above(0);
         });

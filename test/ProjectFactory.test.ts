@@ -22,12 +22,12 @@ describe("ProjectFactory", () => {
 
     context("when new ProjectFactory is deployed", async() => {
         it('creates new Project on proposer\'s request', async () => {
-            await projectFactory.connect(proposer).createProject("New Battery", BigNumber.from(utils.parseEther("0.01")), manufacturer.address, 10);
+            await projectFactory.connect(proposer).createProject("New Battery", BigNumber.from(utils.parseEther("0.01")), manufacturer.address);
             expect(await projectFactory.createdProjects(0)).to.not.equal(0);
         });
 
         it('gets addresses of created projects', async () => {
-            await projectFactory.connect(proposer).createProject("New Battery", BigNumber.from(utils.parseEther("0.01")), manufacturer.address, 10);
+            await projectFactory.connect(proposer).createProject("New Battery", BigNumber.from(utils.parseEther("0.01")), manufacturer.address);
             expect(await projectFactory.createdProjects(0)).to.be.equal((await projectFactory.getProjects())[0]);
         });
     });
