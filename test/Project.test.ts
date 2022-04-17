@@ -14,8 +14,10 @@ describe("Project", () => {
     let project: Project;
     let mockDAIToken: MockDAIToken;
 
-    const [admin, manufacturer, backer1, backer2] = waffle.provider.getWallets();
+    const [admin, manufacturer] = waffle.provider.getWallets();
     let proposer: SignerWithAddress;
+    let backer1: SignerWithAddress;
+    let backer2: SignerWithAddress;
 
     beforeEach(async () => {
         await hre.network.provider.request({
@@ -24,7 +26,9 @@ describe("Project", () => {
         });
 
         proposer = await ethers.getSigner("0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0");
-        
+        backer1 = await ethers.getSigner("0x9bf4001d307dfd62b26a2f1307ee0c0307632d59");
+        backer2 = await ethers.getSigner("0x1b3cb81e51011b549d78bf720b0d924ac763a7c2");
+
         mockDAIToken = await deployContract(
             admin,
             MockDAITokenArtifact,
@@ -59,6 +63,10 @@ describe("Project", () => {
             await project.startBacking(10, mockDAIToken.address);
             expect((await project.backingTime()).open).to.be.equal(true);
             expect((await project.backingTime()).closeTime).to.be.above(0);
+        });
+
+        it('reverts startBacking unless msg.sender is the proposer', async () => {
+            await expect(project.connect(backer1).startBacking(10, mockDAIToken.address)).to.be.reverted;
         });
     });
 });
