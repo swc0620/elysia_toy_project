@@ -1,16 +1,21 @@
 import hre, { ethers, waffle } from "hardhat";
 import { expect } from "chai";
-import { BigNumber, utils } from "ethers";
+import { BigNumber, utils, Wallet } from "ethers";
 
 import ProjectArtifact from "../artifacts/contracts/Project.sol/Project.json";
+import MockDAITokenArtifact from "../artifacts/contracts/MockDAIToken.sol/MockDAIToken.json";
 import { Project } from "../typechain-types/contracts/Project";
+import { MockDAIToken } from "../typechain-types/contracts/MockDAIToken";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const { deployContract } = waffle;
 
 describe("Project", () => {
     let project: Project;
+    let mockDAIToken: MockDAIToken;
 
-    const [proposer, manufacturer, backer1, backer2] = waffle.provider.getWallets();
+    const [admin, manufacturer, backer1, backer2] = waffle.provider.getWallets();
+    let proposer: SignerWithAddress;
 
     beforeEach(async () => {
         await hre.network.provider.request({
@@ -18,10 +23,19 @@ describe("Project", () => {
             params: ["0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0"],
         });
 
-        const signer = await ethers.getSigner("0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0");
+        proposer = await ethers.getSigner("0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0");
         
+        mockDAIToken = await deployContract(
+            admin,
+            MockDAITokenArtifact,
+            [
+                "MockDAIToken",
+                "MDAI"
+            ]
+        ) as MockDAIToken;
+
         project = await deployContract(
-            signer,
+            proposer,
             ProjectArtifact,
             [
                 proposer.address, 
@@ -42,7 +56,7 @@ describe("Project", () => {
         });
 
         it('starts backingTime', async () => {
-            await project.startBacking(10);
+            await project.startBacking(10, mockDAIToken.address);
             expect((await project.backingTime()).open).to.be.equal(true);
             expect((await project.backingTime()).closeTime).to.be.above(0);
         });
