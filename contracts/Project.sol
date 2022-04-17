@@ -29,14 +29,14 @@ contract Project {
         _;
     }
 
-    function startBacking(uint backingDuration_, address backingTokenAddress) public isProposer {
+    function startBacking(uint backingDuration_, address tokenA_, address tokenB_) public isProposer {
         require(backingTime.open == false);
         
         backingTime.open = true;
         backingTime.closeTime = block.timestamp + backingDuration_;
     
         IUniswapV2Factory uniswapV2Factory = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
-        pairAddress = uniswapV2Factory.createPair(backingTokenAddress, 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+        pairAddress = uniswapV2Factory.createPair(tokenA_, tokenB_);
     }
 
     function backProject() external payable {
