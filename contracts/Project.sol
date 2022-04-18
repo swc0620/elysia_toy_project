@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
 contract Project {
     address public proposer;
@@ -16,6 +17,8 @@ contract Project {
 
     DueTime public backingTime;
     address public pairAddress;
+
+    event Mint(address indexed sender, uint amount);
 
     constructor(address proposer_, string memory description_, uint minimumBacking_, address manufacturer_) {        
         proposer = proposer_;
@@ -43,5 +46,10 @@ contract Project {
         require(backingTime.open == true);
         require(block.timestamp < backingTime.closeTime);
         require(msg.value > minimumBacking);
+
+        IUniswapV2Pair uniswapV2Pair = IUniswapV2Pair(pairAddress);
+        uint amount = uniswapV2Pair.mint(address(this));
+
+        emit Mint(msg.sender, amount);
     }
 }
