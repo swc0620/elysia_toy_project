@@ -1,12 +1,12 @@
 import hre, { ethers, waffle } from "hardhat";
 import { expect } from "chai";
-import { BigNumber, Contract, ContractReceipt, ContractTransaction, providers, utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
 import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2PairConfig.sol/UniswapV2PairConfig.json";
 import MockDAITokenArtifact from "../artifacts/contracts/test/MockDAIToken.sol/MockDAIToken.json";
 import MockWETHTokenArtifact from "../artifacts/contracts/test/MockWETHToken.sol/MockWETHToken.json";
 import { UniswapV2PairConfig } from "../typechain-types/contracts//test/UniswapV2PairConfig";
-import { MockDAIToken } from "../typechain-types/contracts/test/MockDAIToken"; 
+import { MockDAIToken } from "../typechain-types/contracts/test/MockDAIToken";
 import { MockWETHToken } from "../typechain-types/contracts/test/MockWETHToken";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
