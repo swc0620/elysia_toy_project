@@ -26,10 +26,9 @@ contract Project {
     mapping(address => uint) private _backings;
     uint private _totalBacking;
 
-    constructor(address proposer_, string memory description_, uint minimumBacking_, address manufacturer_) {        
+    constructor(address proposer_, string memory description_, address manufacturer_) {        
         proposer = proposer_;
         description = description_;
-        minimumBacking = minimumBacking_;
         manufacturer = manufacturer_;
 
         // configuration contract is used by the proposer to achieve the premise, which is that the proposer has created BT-AT pair and has already added liquidity to the pair
@@ -41,12 +40,14 @@ contract Project {
         _;
     }
 
-    function startBacking(uint backingDuration_, address pairAddress_, address backingToken_, address auxiliaryToken_) public isProposer {
+    function startBacking(uint backingDuration_, uint minimumBacking_, address pairAddress_, address backingToken_, address auxiliaryToken_) public isProposer {
         require(backingTime.open == false);
         
         backingTime.open = true;
         backingTime.closeTime = block.timestamp + backingDuration_;
 
+        MockDAIToken mockDAIToken = MockDAIToken(backingToken_);
+        minimumBacking = minimumBacking_ * 10 ** mockDAIToken.decimals();
         pairAddress = pairAddress_;
         backingToken = backingToken_;
         auxiliaryToken = auxiliaryToken_;

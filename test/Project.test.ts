@@ -56,7 +56,6 @@ describe("Project", () => {
             [
                 proposer.address, 
                 "New Battery", 
-                BigNumber.from(utils.parseEther("0.01")), 
                 manufacturer.address, 
             ]
         ) as Project;
@@ -67,7 +66,6 @@ describe("Project", () => {
         it('has given data', async () => {
             expect(await project.proposer()).to.be.equal(proposer.address)
             expect(await project.description()).to.be.equal("New Battery");
-            expect(await project.minimumBacking()).to.be.equal(BigNumber.from(utils.parseEther("0.01")));
             expect(await project.manufacturer()).to.be.equal(manufacturer.address);
         });
 
@@ -77,7 +75,8 @@ describe("Project", () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await project.startBacking(300, pairAddress, mockDAIToken.address, mockWETHToken.address);
+            await project.startBacking(300, 1, pairAddress, mockDAIToken.address, mockWETHToken.address);
+            expect(await project.minimumBacking()).to.be.equal(BigNumber.from(utils.parseEther("1")));
             expect((await project.backingTime()).open).to.be.equal(true);
             expect((await project.backingTime()).closeTime).to.be.above(0);
         });
@@ -88,7 +87,7 @@ describe("Project", () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await expect(project.connect(backer1).startBacking(300, pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
+            await expect(project.connect(backer1).startBacking(300, 1, pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
         });
     });
 });
