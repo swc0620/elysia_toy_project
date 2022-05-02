@@ -31,6 +31,6 @@ contract UniswapV2PairConfig {
 
         // adds liquidity to BT-AT pair
         IUniswapV2Router02 uniswapV2Router02 = IUniswapV2Router02(router_);
-        uniswapV2Router02.addLiquidity(backingToken_, auxiliaryToken_, amountBT, amountAT, amountBT*99/100, amountAT*99/100, projectContract, block.timestamp+300);
+        uniswapV2Router02.addLiquidity(backingToken_, auxiliaryToken_, amountBT, amountAT, amountBT*99/100, amountAT*99/100, address(this), block.timestamp+300);
     }
 }
