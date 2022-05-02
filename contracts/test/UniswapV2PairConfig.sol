@@ -25,6 +25,9 @@ contract UniswapV2PairConfig {
         uint amountBT = amountBT_ * 10 ** mockDAIToken.decimals();
         uint amountAT = amountAT_ * 10 ** mockWETHToken.decimals();
         
+        require(mockDAIToken.transferFrom(proposer, address(this), amountBT), "transfer failed.");
+        require(mockWETHToken.transferFrom(proposer, address(this), amountAT), "transfer failed.");
+
         // gives UniswapV2Router an allowance of at least amountBT, amountAT desired on BT, AT
         mockDAIToken.increaseAllowance(router_, amountBT);
         mockWETHToken.increaseAllowance(router_, amountAT);

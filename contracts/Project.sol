@@ -32,7 +32,7 @@ contract Project {
         minimumBacking = minimumBacking_;
         manufacturer = manufacturer_;
 
-        // configuration contract is used by the proposer to achieve the premise, which is the proposer has created BT-AT pair and added liquidity to the pair
+        // configuration contract is used by the proposer to achieve the premise, which is that the proposer has created BT-AT pair and has already added liquidity to the pair
         uniswapV2PairConfigContract = address(new UniswapV2PairConfig(proposer_, address(this)));
     }
 
