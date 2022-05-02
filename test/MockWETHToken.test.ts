@@ -2,7 +2,7 @@ import { waffle } from "hardhat";
 import { expect } from "chai";
 import { BigNumber, utils } from "ethers";
 
-import MockWETHTokenArtifact from "../artifacts/contracts/MockWETHToken.sol/MockWETHToken.json";
+import MockWETHTokenArtifact from "../artifacts/contracts/test/MockWETHToken.sol/MockWETHToken.json";
 import { MockWETHToken } from "../typechain-types/contracts/MockWETHToken";
 
 const { deployContract } = waffle;
@@ -32,7 +32,7 @@ describe("MockWETHToken", () => {
 
         it('distributes MWETH via faucet', async () => {
             await mockWETHToken.connect(backer1).faucet();
-            expect(await mockWETHToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("1")));
+            expect(await mockWETHToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("100")));
         });
     });
 });

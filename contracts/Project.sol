@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./UniswapV2PairConfig.sol";
+import "./test/UniswapV2PairConfig.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import "./MockDAIToken.sol";
+import "./test/MockDAIToken.sol";
 
 contract Project {
     address uniswapV2PairConfigContract;

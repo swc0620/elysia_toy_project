@@ -1,9 +1,9 @@
 import hre, { ethers, waffle } from "hardhat";
 import { expect } from "chai";
-import { BigNumber, utils, Wallet } from "ethers";
+import { BigNumber, utils } from "ethers";
 
 import ProjectArtifact from "../artifacts/contracts/Project.sol/Project.json";
-import MockDAITokenArtifact from "../artifacts/contracts/MockDAIToken.sol/MockDAIToken.json";
+import MockDAITokenArtifact from "../artifacts/contracts/test/MockDAIToken.sol/MockDAIToken.json";
 import { Project } from "../typechain-types/contracts/Project";
 import { MockDAIToken } from "../typechain-types/contracts/MockDAIToken";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";

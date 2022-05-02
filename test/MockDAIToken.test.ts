@@ -2,7 +2,7 @@ import { waffle } from "hardhat";
 import { expect } from "chai";
 import { BigNumber, utils } from "ethers";
 
-import MockDAITokenArtifact from "../artifacts/contracts/MockDAIToken.sol/MockDAIToken.json";
+import MockDAITokenArtifact from "../artifacts/contracts/test/MockDAIToken.sol/MockDAIToken.json";
 import { MockDAIToken } from "../typechain-types/contracts/MockDAIToken";
 
 const { deployContract } = waffle;
@@ -32,7 +32,7 @@ describe("MockDAIToken", () => {
 
         it('distributes MDAI via faucet', async () => {
             await mockDAIToken.connect(backer1).faucet();
-            expect(await mockDAIToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("1")));
+            expect(await mockDAIToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("100")));
         });
     });
 });

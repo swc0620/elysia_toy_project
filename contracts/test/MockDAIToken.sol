@@ -12,6 +12,6 @@ contract MockDAIToken is ERC20 {
     }
 
     function faucet() external {
-        _transfer(address(this), msg.sender, 1e18);
+        _transfer(address(this), msg.sender, 1e20);
     }
 }
