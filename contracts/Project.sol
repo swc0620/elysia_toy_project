@@ -27,6 +27,8 @@ contract Project {
     mapping(address => uint) public backings;
     uint public totalBacking;
 
+    event BackingCreated(address indexed backerAddress, uint amountBT);
+
     constructor(address proposer_, string memory description_, address manufacturer_) {        
         proposer = proposer_;
         description = description_;
@@ -89,5 +91,7 @@ contract Project {
             backersCount += 1;
         }
         backings[backerAddress] += amountBT;
+
+        emit BackingCreated(backerAddress, amountBT);
     }
 }
