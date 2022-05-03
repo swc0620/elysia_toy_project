@@ -42,7 +42,7 @@ contract Project {
     }
 
     function startBacking(uint backingDuration_, uint minimumBacking_, address pairAddress_, address backingToken_, address auxiliaryToken_) public isProposer {
-        require(backingTime.open == false);
+        require(backingTime.open == false, "backing has already started");
         
         backingTime.open = true;
         backingTime.closeTime = block.timestamp + backingDuration_;
@@ -55,8 +55,8 @@ contract Project {
     }
 
     function backProject(uint amountBT_, address router_) external {
-        require(backingTime.open == true);
-        require(block.timestamp < backingTime.closeTime);
+        require(backingTime.open == true, "backing has not started");
+        require(block.timestamp < backingTime.closeTime, "backing ended");
 
         // let this contract be in control of amountBT
         MockDAIToken mockDAIToken = MockDAIToken(backingToken);
