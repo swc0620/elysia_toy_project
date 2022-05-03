@@ -4,7 +4,7 @@ import { BigNumber, Contract, utils } from "ethers";
 
 import ProjectFactoryArtifact from "../artifacts/contracts/ProjectFactory.sol/ProjectFactory.json"
 import { ProjectFactory } from "../typechain-types/contracts/ProjectFactory"
-import { hexStripZeros } from "ethers/lib/utils";
+import projectABI from "../abi/projectABI.json";
 
 const { deployContract } = waffle
 
@@ -27,7 +27,6 @@ describe("ProjectFactory", () => {
             const projectAddress = await projectFactory.createdProjects(0)
             expect(projectAddress).to.not.equal(0);
 
-            const projectABI = [{"constant":true,"inputs":[],"name":"proposer","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"manufacturer","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}, {"constant":true,"inputs":[],"name":"description","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}]
 
             const projectContract: Contract = await hre.ethers.getContractAt(projectABI, projectAddress);
             expect(await projectContract.proposer()).to.be.equal(proposer.address);

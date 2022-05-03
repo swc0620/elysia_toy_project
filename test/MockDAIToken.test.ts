@@ -3,7 +3,7 @@ import { expect } from "chai";
 import { BigNumber, utils } from "ethers";
 
 import MockDAITokenArtifact from "../artifacts/contracts/test/MockDAIToken.sol/MockDAIToken.json";
-import { MockDAIToken } from "../typechain-types/contracts/MockDAIToken";
+import { MockDAIToken } from "../typechain-types/contracts/test/MockDAIToken";
 
 const { deployContract } = waffle;
 
