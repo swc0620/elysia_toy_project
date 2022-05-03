@@ -84,4 +84,9 @@ contract Project {
 
         emit BackingCreated(backerAddress, amountBT_);
     }
+
+    function startVote() external isProposer {
+        require(backingTime.open == true, "backing has not started");
+        require(block.timestamp >= backingTime.closeTime);
+    }
 }

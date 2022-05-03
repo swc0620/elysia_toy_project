@@ -76,6 +76,10 @@ describe("Project", () => {
             await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("msg.sender is not the proposer");
         });
 
+        it('reverts backProject() unless backingTime.open == true', async () => {
+            await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
+        });
+
         context('after startBacking() function has been provoked', async () => {
             beforeEach(async () => {
                 // provoke startBacking()
@@ -96,6 +100,14 @@ describe("Project", () => {
                 await mockDAIToken.connect(proposer).increaseAllowance(configContract.address, utils.parseEther("1000"));
                 await mockWETHToken.connect(proposer).increaseAllowance(configContract.address, utils.parseEther("1000"));
                 await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, utils.parseEther("1000"), utils.parseEther("1000"), utils.parseEther("990"), utils.parseEther("990"));
+            });
+
+            it('reverts backProject() when block.timestamp >= backingTime.closeTime', async () => {
+                const sevenDays = 7 * 24 * 60 * 60;
+                await ethers.provider.send('evm_increaseTime', [sevenDays]);
+                await ethers.provider.send('evm_mine', []);
+    
+                await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
             });
 
             it('reverts when amountBT_ is less than minimumBacking', async () => {
