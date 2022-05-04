@@ -24,6 +24,8 @@ contract Project {
 
     event BackingCreated(address indexed backerAddress, uint amountBT);
 
+    DueTime public votingTime;
+
     constructor(address proposer_, string memory description_, address manufacturer_) {        
         proposer = proposer_;
         description = description_;
@@ -85,8 +87,11 @@ contract Project {
         emit BackingCreated(backerAddress, amountBT_);
     }
 
-    function startVote() external isProposer {
+    function startVoting(uint votingDuration_) external isProposer {
         require(backingTime.open == true, "backing has not started");
         require(block.timestamp >= backingTime.closeTime);
+
+        votingTime.open = true;
+        votingTime.closeTime = block.timestamp + votingDuration_;
     }
 }

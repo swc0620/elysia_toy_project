@@ -175,6 +175,25 @@ describe("Project", () => {
                 expect(await project.backings(backer1.address)).to.be.equal(utils.parseEther("200"));
                 expect(await project.backersCount()).to.be.equal(1);
             });
+
+            it('reverts startVote() when block.timestamp < backingTime.closeTime', async () => {
+                await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
+            });
+
+            context('after time longer than backingDuration_ has passed', async () => {
+                beforeEach('', async () => {
+                    const sevenDays = 7 * 24 * 60 * 60;
+                    await ethers.provider.send('evm_increaseTime', [sevenDays]);
+                    await ethers.provider.send('evm_mine', []);
+                });
+
+                it('starts votingTime', async () => {
+                    await project.startVoting(300);
+
+                    expect((await project.votingTime()).open).to.be.equal(true);
+                    expect((await project.votingTime()).closeTime).to.be.above(0);
+                });
+            });
         });
     });
 });
