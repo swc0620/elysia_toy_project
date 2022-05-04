@@ -92,7 +92,7 @@ describe("Project", () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await project.startBacking(300, 2, pairAddress, mockDAIToken.address, mockWETHToken.address);
+            await project.startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address);
             expect(await project.minimumBacking()).to.be.equal(BigNumber.from(utils.parseEther("2")));
             expect((await project.backingTime()).open).to.be.equal(true);
             expect((await project.backingTime()).closeTime).to.be.above(0);
@@ -102,7 +102,7 @@ describe("Project", () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await expect(project.connect(backer1).startBacking(300, 2, pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
+            await expect(project.connect(backer1).startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
         });
 
         context('after startBacking() function has been provoked', async () => {
@@ -110,7 +110,7 @@ describe("Project", () => {
                 // provoke startBacking()
                 const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
                 const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-                await project.startBacking(300, 2, pairAddress, mockDAIToken.address, mockWETHToken.address);
+                await project.startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address);
 
                 // initially distribute MDAI to backers
                 await mockDAIToken.connect(backer1).faucet();
@@ -126,11 +126,11 @@ describe("Project", () => {
                 const configContract: Contract = await hre.ethers.getContractAt(configContractABI, configContractAddress);
                 await mockDAIToken.connect(proposer).increaseAllowance(configContract.address, BigNumber.from(utils.parseEther("1000")));
                 await mockWETHToken.connect(proposer).increaseAllowance(configContract.address, BigNumber.from(utils.parseEther("1000")));
-                await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, 1000, 1000);
+                await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, BigNumber.from(utils.parseEther("1000")), BigNumber.from(utils.parseEther("1000")));
             });
 
             it('reverts when amountBT_ is less than minimumBacking', async () => {
-                await expect(project.backProject(1, routerAddress)).to.be.reverted;
+                await expect(project.backProject(BigNumber.from(utils.parseEther("1")), routerAddress)).to.be.reverted;
             });
 
             it('is able to back project', async () => {
@@ -139,7 +139,7 @@ describe("Project", () => {
                 const pairContract: Contract = await hre.ethers.getContractAt(pairABI, pairAddress);
                 
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
-                const backingTx = await project.connect(backer1).backProject(100, routerAddress);
+                const backingTx = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
 
                 await expect(backingTx)
                     .to.emit(mockDAIToken, 'Transfer').withArgs(backer1.address, project.address, BigNumber.from(utils.parseEther("100")))
@@ -159,8 +159,8 @@ describe("Project", () => {
                 
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
                 await mockDAIToken.connect(backer2).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
-                const backingTx1 = await project.connect(backer1).backProject(100, routerAddress);
-                const backingTx2 = await project.connect(backer2).backProject(100, routerAddress);
+                const backingTx1 = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
+                const backingTx2 = await project.connect(backer2).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
 
                 await expect(backingTx1)
                     .to.emit(mockDAIToken, 'Transfer').withArgs(backer1.address, project.address, BigNumber.from(utils.parseEther("100")))
@@ -186,8 +186,8 @@ describe("Project", () => {
                 
                 await mockDAIToken.connect(backer1).faucet();
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("200")));
-                const backingTx1 = await project.connect(backer1).backProject(100, routerAddress);
-                const backingTx2 = await project.connect(backer1).backProject(100, routerAddress);
+                const backingTx1 = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
+                const backingTx2 = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
 
                 await expect(backingTx1)
                     .to.emit(mockDAIToken, 'Transfer').withArgs(backer1.address, project.address, BigNumber.from(utils.parseEther("100")))

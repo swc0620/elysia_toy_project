@@ -49,8 +49,7 @@ contract Project {
         backingTime.open = true;
         backingTime.closeTime = block.timestamp + backingDuration_;
 
-        FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken_);
-        minimumBacking = minimumBacking_ * 10 ** mockDAIToken.decimals();
+        minimumBacking = minimumBacking_;
         pairAddress = pairAddress_;
         backingToken = backingToken_;
         auxiliaryToken = auxiliaryToken_;
@@ -64,34 +63,32 @@ contract Project {
         FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken);
         FaucetableERC20 mockWETHToken = FaucetableERC20(auxiliaryToken);
 
-        uint amountBT = amountBT_ * 10 ** mockDAIToken.decimals();
-
-        require(amountBT >= minimumBacking, "unsufficient backing.");
+        require(amountBT_ >= minimumBacking, "unsufficient backing.");
         address backerAddress = msg.sender;
-        require(mockDAIToken.transferFrom(backerAddress, address(this), amountBT), "transferFrom failed.");
+        require(mockDAIToken.transferFrom(backerAddress, address(this), amountBT_), "transferFrom failed.");
     
         // approve UniswapV2Rounter to withdraw amountBT
-        require(mockDAIToken.increaseAllowance(router_, amountBT), "increaseAllowance failed.");
+        require(mockDAIToken.increaseAllowance(router_, amountBT_), "increaseAllowance failed.");
         
         // swap BT-AT
         address[] memory path = new address[](2);
         path[0] = backingToken;
         path[1] = auxiliaryToken;
         IUniswapV2Router02 uniswapV2Router02 = IUniswapV2Router02(router_);
-        uint[] memory amounts = uniswapV2Router02.swapExactTokensForTokens(amountBT/2, 1, path, address(this), block.timestamp+300);
+        uint[] memory amounts = uniswapV2Router02.swapExactTokensForTokens(amountBT_/2, 1, path, address(this), block.timestamp+300);
 
         require(mockWETHToken.increaseAllowance(router_, amounts[1]), "increaseAllowance failed.");
 
         // add liquidity to BT-AT pair
-        uniswapV2Router02.addLiquidity(backingToken, auxiliaryToken, amountBT/2, amounts[1], amountBT/2000, amounts[1]/2000, address(this), block.timestamp+300);
+        uniswapV2Router02.addLiquidity(backingToken, auxiliaryToken, amountBT_/2, amounts[1], amountBT_/2000, amounts[1]/2000, address(this), block.timestamp+300);
 
         // update backer data
-        totalBacking += amountBT;
+        totalBacking += amountBT_;
         if (backings[backerAddress] == 0) {
             backersCount += 1;
         }
-        backings[backerAddress] += amountBT;
+        backings[backerAddress] += amountBT_;
 
-        emit BackingCreated(backerAddress, amountBT);
+        emit BackingCreated(backerAddress, amountBT_);
     }
 }

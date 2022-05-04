@@ -67,7 +67,7 @@ describe("UniswapV2PairConfig", () => {
             await mockDAIToken.connect(proposer).increaseAllowance(uniswapV2PairConfig.address, BigNumber.from(utils.parseEther("1000")));
             await mockWETHToken.connect(proposer).increaseAllowance(uniswapV2PairConfig.address, BigNumber.from(utils.parseEther("1000")));
             const routerAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
-            const tx = await uniswapV2PairConfig.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, 1000, 1000)
+            const tx = await uniswapV2PairConfig.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, BigNumber.from(utils.parseEther("1000")), BigNumber.from(utils.parseEther("1000")));
             
             
             const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
