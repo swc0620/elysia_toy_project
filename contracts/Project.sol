@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./test/UniswapV2PairConfig.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import "./test/MockDAIToken.sol";
+import "./test/UniswapV2PairConfig.sol";
+import "./test/FaucetableERC20.sol";
 import "hardhat/console.sol";
 
 contract Project {
@@ -49,7 +49,7 @@ contract Project {
         backingTime.open = true;
         backingTime.closeTime = block.timestamp + backingDuration_;
 
-        MockDAIToken mockDAIToken = MockDAIToken(backingToken_);
+        FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken_);
         minimumBacking = minimumBacking_ * 10 ** mockDAIToken.decimals();
         pairAddress = pairAddress_;
         backingToken = backingToken_;
@@ -61,8 +61,8 @@ contract Project {
         require(block.timestamp < backingTime.closeTime, "backing ended");
 
         // let this contract be in control of amountBT
-        MockDAIToken mockDAIToken = MockDAIToken(backingToken);
-        MockWETHToken mockWETHToken = MockWETHToken(auxiliaryToken);
+        FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken);
+        FaucetableERC20 mockWETHToken = FaucetableERC20(auxiliaryToken);
 
         uint amountBT = amountBT_ * 10 ** mockDAIToken.decimals();
 

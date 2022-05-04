@@ -1,6 +1,6 @@
 import hre, { waffle } from "hardhat";
 import { expect } from "chai";
-import { BigNumber, Contract, utils } from "ethers";
+import { Contract } from "ethers";
 
 import ProjectFactoryArtifact from "../artifacts/contracts/ProjectFactory.sol/ProjectFactory.json"
 import { ProjectFactory } from "../typechain-types/contracts/ProjectFactory"

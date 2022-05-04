@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract MockDAIToken is ERC20 {
+contract FaucetableERC20 is ERC20 {
     constructor(
         string memory name_, 
         string memory symbol_

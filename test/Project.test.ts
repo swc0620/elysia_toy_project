@@ -4,11 +4,9 @@ import { BigNumber, Contract, Signer, utils } from "ethers";
 
 import ProjectArtifact from "../artifacts/contracts/Project.sol/Project.json";
 import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2PairConfig.sol/UniswapV2PairConfig.json";
-import MockDAITokenArtifact from "../artifacts/contracts/test/MockDAIToken.sol/MockDAIToken.json";
-import MockWETHTokenArtifact from "../artifacts/contracts/test/MockWETHToken.sol/MockWETHToken.json";
+import FaucetableERC20Artifact from "../artifacts/contracts/test/FaucetableERC20.sol/FaucetableERC20.json";
+import { FaucetableERC20 } from "../typechain-types/contracts/test/FaucetableERC20";
 import { Project } from "../typechain-types/contracts/Project";
-import { MockDAIToken } from "../typechain-types/contracts/test/MockDAIToken";
-import { MockWETHToken } from "../typechain-types/contracts/test/MockWETHToken"; 
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import factoryABI from "../abi/factoryABI.json";
 import pairABI from "../abi/pairABI.json";
@@ -17,8 +15,8 @@ const { deployContract } = waffle;
 
 describe("Project", () => {
     let project: Project;
-    let mockDAIToken: MockDAIToken;
-    let mockWETHToken: MockWETHToken;
+    let mockDAIToken: FaucetableERC20;
+    let mockWETHToken: FaucetableERC20;
 
     const [manufacturer] = waffle.provider.getWallets();
     let admin: SignerWithAddress
@@ -55,21 +53,21 @@ describe("Project", () => {
 
         mockDAIToken = await deployContract(
             admin,
-            MockDAITokenArtifact,
+            FaucetableERC20Artifact,
             [
                 "MockDAIToken",
                 "MDAI"
             ]
-        ) as MockDAIToken;
+        ) as FaucetableERC20;
 
         mockWETHToken = await deployContract(
             admin,
-            MockWETHTokenArtifact,
+            FaucetableERC20Artifact,
             [
                 "MockWETHToken",
                 "MWETH"
             ]
-        ) as MockWETHToken;
+        ) as FaucetableERC20;
 
         project = await deployContract(
             proposer,

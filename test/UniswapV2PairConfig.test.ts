@@ -3,11 +3,9 @@ import { expect } from "chai";
 import { BigNumber, Contract, utils } from "ethers";
 
 import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2PairConfig.sol/UniswapV2PairConfig.json";
-import MockDAITokenArtifact from "../artifacts/contracts/test/MockDAIToken.sol/MockDAIToken.json";
-import MockWETHTokenArtifact from "../artifacts/contracts/test/MockWETHToken.sol/MockWETHToken.json";
+import FaucetableERC20Artifact from "../artifacts/contracts/test/FaucetableERC20.sol/FaucetableERC20.json";
+import { FaucetableERC20 } from "../typechain-types/contracts/test/FaucetableERC20";
 import { UniswapV2PairConfig } from "../typechain-types/contracts//test/UniswapV2PairConfig";
-import { MockDAIToken } from "../typechain-types/contracts/test/MockDAIToken";
-import { MockWETHToken } from "../typechain-types/contracts/test/MockWETHToken";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import factoryABI from "../abi/factoryABI.json";
 import pairABI from "../abi/pairABI.json";
@@ -46,20 +44,20 @@ describe("UniswapV2PairConfig", () => {
         it('adds liquidity to BT-AT pair', async () => {
             const mockDAIToken = await deployContract(
                 admin,
-                MockDAITokenArtifact,
+                FaucetableERC20Artifact,
                 [
                     "MockDAIToken",
                     "MDAI"
                 ]
-            ) as MockDAIToken;
+            ) as FaucetableERC20;
             const mockWETHToken = await deployContract(
                 admin,
-                MockWETHTokenArtifact,
+                FaucetableERC20Artifact,
                 [
                     "MockWETHToken",
                     "MWETH"
                 ]
-            ) as MockWETHToken;
+            ) as FaucetableERC20;
                         
             for (let i = 0; i < 10; i++) {
                 await mockDAIToken.connect(proposer).faucet();

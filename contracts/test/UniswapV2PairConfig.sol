@@ -3,9 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import "./MockDAIToken.sol";
-import "./MockWETHToken.sol";
-import "hardhat/console.sol";
+import "./FaucetableERC20.sol";
 
 contract UniswapV2PairConfig {
     address public projectContract;
@@ -19,8 +17,8 @@ contract UniswapV2PairConfig {
     function addLiquidity(address backingToken_, address auxiliaryToken_, address router_, uint amountBT_, uint amountAT_) external {
         require(msg.sender == proposer);
 
-        MockDAIToken mockDAIToken = MockDAIToken(backingToken_);
-        MockWETHToken mockWETHToken = MockWETHToken(auxiliaryToken_);
+        FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken_);
+        FaucetableERC20 mockWETHToken = FaucetableERC20(auxiliaryToken_);
         
         uint amountBT = amountBT_ * 10 ** mockDAIToken.decimals();
         uint amountAT = amountAT_ * 10 ** mockWETHToken.decimals();
