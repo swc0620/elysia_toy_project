@@ -75,6 +75,7 @@ contract Project {
         path[0] = backingToken;
         path[1] = auxiliaryToken;
         IUniswapV2Router02 uniswapV2Router02 = IUniswapV2Router02(router_);
+        // amounts[0]: amount of input token, amounts[1]: amount of output token
         uint[] memory amounts = uniswapV2Router02.swapExactTokensForTokens(amountBT_/2, 1, path, address(this), block.timestamp+300);
 
         require(mockWETHToken.increaseAllowance(router_, amounts[1]), "increaseAllowance failed.");
