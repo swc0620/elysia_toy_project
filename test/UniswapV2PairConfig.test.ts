@@ -52,10 +52,8 @@ describe("UniswapV2PairConfig", () => {
                 ]
             ) as FaucetableERC20;
                         
-            for (let i = 0; i < 10; i++) {
-                await mockDAIToken.connect(proposer).faucet();
-                await mockWETHToken.connect(proposer).faucet();
-            }
+            await mockDAIToken.connect(proposer).faucet(BigNumber.from(utils.parseEther("1000")));
+            await mockWETHToken.connect(proposer).faucet(BigNumber.from(utils.parseEther("1000")));
 
             await mockDAIToken.connect(proposer).increaseAllowance(uniswapV2PairConfig.address, BigNumber.from(utils.parseEther("1000")));
             await mockWETHToken.connect(proposer).increaseAllowance(uniswapV2PairConfig.address, BigNumber.from(utils.parseEther("1000")));

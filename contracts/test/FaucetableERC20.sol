@@ -11,7 +11,7 @@ contract FaucetableERC20 is ERC20 {
         _mint(address(this), 1e22);
     }
 
-    function faucet() external {
-        _transfer(address(this), msg.sender, 1e20);
+    function faucet(uint amount_) external {
+        _transfer(address(this), msg.sender, amount_);
     }
 }

@@ -43,7 +43,7 @@ describe("FaucetableERC20", () => {
         });
 
         it('distributes MDAI via faucet', async () => {
-            await mockDAIToken.connect(backer1).faucet();
+            await mockDAIToken.connect(backer1).faucet(BigNumber.from(utils.parseEther("100")));
             expect(await mockDAIToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("100")));
         });
     });
@@ -56,7 +56,7 @@ describe("FaucetableERC20", () => {
         });
 
         it('distributes MWETH via faucet', async () => {
-            await mockWETHToken.connect(backer1).faucet();
+            await mockWETHToken.connect(backer1).faucet(BigNumber.from(utils.parseEther("100")));
             expect(await mockWETHToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("100")));
         });
     });

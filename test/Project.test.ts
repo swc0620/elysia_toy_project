@@ -85,14 +85,12 @@ describe("Project", () => {
                 await project.startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address);
 
                 // initially distribute MDAI to backers
-                await mockDAIToken.connect(backer1).faucet();
-                await mockDAIToken.connect(backer2).faucet();
+                await mockDAIToken.connect(backer1).faucet(BigNumber.from(utils.parseEther("100")));
+                await mockDAIToken.connect(backer2).faucet(BigNumber.from(utils.parseEther("100")));
 
                 // add liquidity to LP pool in advance
-                for (let i = 0; i < 10; i++) {
-                    await mockDAIToken.connect(proposer).faucet();
-                    await mockWETHToken.connect(proposer).faucet();
-                }
+                await mockDAIToken.connect(proposer).faucet(BigNumber.from(utils.parseEther("1000")));
+                await mockWETHToken.connect(proposer).faucet(BigNumber.from(utils.parseEther("1000")));
                 const configContractAddress = await project.uniswapV2PairConfigContract();
                 const configContractABI = UniswapV2PairConfigArtifact.abi;
                 const configContract: UniswapV2PairConfig = await hre.ethers.getContractAt(configContractABI, configContractAddress) as UniswapV2PairConfig;
@@ -156,7 +154,7 @@ describe("Project", () => {
                 const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
                 const pairContract: Contract = await hre.ethers.getContractAt(pairABI, pairAddress);
                 
-                await mockDAIToken.connect(backer1).faucet();
+                await mockDAIToken.connect(backer1).faucet(BigNumber.from(utils.parseEther("100")));
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("200")));
                 await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
                 await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
