@@ -6,7 +6,6 @@ import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2Pa
 import FaucetableERC20Artifact from "../artifacts/contracts/test/FaucetableERC20.sol/FaucetableERC20.json";
 import { FaucetableERC20 } from "../typechain-types/contracts/test/FaucetableERC20";
 import { UniswapV2PairConfig } from "../typechain-types/contracts//test/UniswapV2PairConfig";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import factoryABI from "../abi/factoryABI.json";
 import pairABI from "../abi/pairABI.json";
 
@@ -15,16 +14,10 @@ const { deployContract } = waffle;
 describe("UniswapV2PairConfig", () => {
     let uniswapV2PairConfig: UniswapV2PairConfig;
 
-    const [admin, projectContract] = waffle.provider.getWallets();
-    let proposer: SignerWithAddress;
+    const [admin, projectContract, proposer] = waffle.provider.getWallets();
+    // let proposer: SignerWithAddress;
 
     beforeEach(async () => {
-        await hre.network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: ["0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0"],
-        });
-        proposer = await ethers.getSigner("0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0");
-
         uniswapV2PairConfig = await deployContract(
             proposer,
             UniswapV2PairConfigArtifact,

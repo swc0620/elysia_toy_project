@@ -7,7 +7,6 @@ import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2Pa
 import FaucetableERC20Artifact from "../artifacts/contracts/test/FaucetableERC20.sol/FaucetableERC20.json";
 import { FaucetableERC20 } from "../typechain-types/contracts/test/FaucetableERC20";
 import { Project } from "../typechain-types/contracts/Project";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import factoryABI from "../abi/factoryABI.json";
 import pairABI from "../abi/pairABI.json";
 
@@ -18,39 +17,12 @@ describe("Project", () => {
     let mockDAIToken: FaucetableERC20;
     let mockWETHToken: FaucetableERC20;
 
-    const [manufacturer] = waffle.provider.getWallets();
-    let admin: SignerWithAddress
-    let proposer: SignerWithAddress;
-    let backer1: SignerWithAddress;
-    let backer2: SignerWithAddress;
+    const [admin, proposer, backer1, backer2, manufacturer] = waffle.provider.getWallets();
 
     const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
     const routerAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
 
     beforeEach(async () => {
-        await hre.network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: ["0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0"],
-        });
-        await hre.network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: ["0x1b3cb81e51011b549d78bf720b0d924ac763a7c2"],
-        });
-        await hre.network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: ["0x2b6ed29a95753c3ad948348e3e7b1a251080ffb9"],
-        });
-        await hre.network.provider.request({
-            method: "hardhat_impersonateAccount",
-            params: ["0xca8fa8f0b631ecdb18cda619c4fc9d197c8affca"],
-        });
-
-        admin = await ethers.getSigner("0xca8fa8f0b631ecdb18cda619c4fc9d197c8affca");
-        proposer = await ethers.getSigner("0xE78388b4CE79068e89Bf8aA7f218eF6b9AB0e9d0");
-        backer1 = await ethers.getSigner("0x1b3cb81e51011b549d78bf720b0d924ac763a7c2");
-        backer2 = await ethers.getSigner("0x2b6ed29a95753c3ad948348e3e7b1a251080ffb9");
-
-
         mockDAIToken = await deployContract(
             admin,
             FaucetableERC20Artifact,
