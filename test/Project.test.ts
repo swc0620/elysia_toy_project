@@ -1,6 +1,6 @@
-import hre, { ethers, waffle } from "hardhat";
+import hre, { waffle } from "hardhat";
 import { expect } from "chai";
-import { BigNumber, Contract, Signer, utils } from "ethers";
+import { BigNumber, Contract, utils } from "ethers";
 
 import ProjectArtifact from "../artifacts/contracts/Project.sol/Project.json";
 import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2PairConfig.sol/UniswapV2PairConfig.json";
@@ -98,11 +98,11 @@ describe("Project", () => {
                 const configContract: UniswapV2PairConfig = await hre.ethers.getContractAt(configContractABI, configContractAddress) as UniswapV2PairConfig;
                 await mockDAIToken.connect(proposer).increaseAllowance(configContract.address, BigNumber.from(utils.parseEther("1000")));
                 await mockWETHToken.connect(proposer).increaseAllowance(configContract.address, BigNumber.from(utils.parseEther("1000")));
-                await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, BigNumber.from(utils.parseEther("1000")), BigNumber.from(utils.parseEther("1000")));
+                await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, BigNumber.from(utils.parseEther("1000")), BigNumber.from(utils.parseEther("1000")), BigNumber.from(utils.parseEther("990")), BigNumber.from(utils.parseEther("990")));
             });
 
             it('reverts when amountBT_ is less than minimumBacking', async () => {
-                await expect(project.backProject(BigNumber.from(utils.parseEther("1")), routerAddress)).to.be.reverted;
+                await expect(project.backProject(BigNumber.from(utils.parseEther("1")), 2000, routerAddress)).to.be.reverted;
             });
 
             it('is able to back project', async () => {
@@ -111,7 +111,7 @@ describe("Project", () => {
                 const pairContract: Contract = await hre.ethers.getContractAt(pairABI, pairAddress);
                 
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
-                const backingTx = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
+                const backingTx = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
 
                 await expect(backingTx)
                     .to.emit(mockDAIToken, 'Transfer').withArgs(backer1.address, project.address, BigNumber.from(utils.parseEther("100")))
@@ -131,8 +131,8 @@ describe("Project", () => {
                 
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
                 await mockDAIToken.connect(backer2).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
-                const backingTx1 = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
-                const backingTx2 = await project.connect(backer2).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
+                const backingTx1 = await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
+                const backingTx2 = await project.connect(backer2).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
 
                 await expect(backingTx1)
                     .to.emit(mockDAIToken, 'Transfer').withArgs(backer1.address, project.address, BigNumber.from(utils.parseEther("100")))
@@ -158,8 +158,8 @@ describe("Project", () => {
                 
                 await mockDAIToken.connect(backer1).faucet();
                 await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("200")));
-                await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
-                await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), routerAddress);
+                await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
+                await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
 
                 expect(await pairContract.balanceOf(project.address)).to.not.equal(0);
                 expect(await project.totalBacking()).to.be.equal(BigNumber.from(utils.parseEther("200")));

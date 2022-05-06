@@ -14,7 +14,7 @@ contract UniswapV2PairConfig {
         projectContract = projectContract_;
     }
 
-    function addLiquidity(address backingToken_, address auxiliaryToken_, address router_, uint amountBT_, uint amountAT_) external {
+    function addLiquidity(address backingToken_, address auxiliaryToken_, address router_, uint amountBT_, uint amountAT_, uint amountATmin_, uint amountBTmin_) external {
         require(msg.sender == proposer);
 
         FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken_);
@@ -29,6 +29,6 @@ contract UniswapV2PairConfig {
 
         // adds liquidity to BT-AT pair
         IUniswapV2Router02 uniswapV2Router02 = IUniswapV2Router02(router_);
-        uniswapV2Router02.addLiquidity(backingToken_, auxiliaryToken_, amountBT_, amountAT_, amountBT_*99/100, amountAT_*99/100, address(this), block.timestamp+300);
+        uniswapV2Router02.addLiquidity(backingToken_, auxiliaryToken_, amountBT_, amountAT_, amountATmin_, amountBTmin_, address(this), block.timestamp+300);
     }
 }

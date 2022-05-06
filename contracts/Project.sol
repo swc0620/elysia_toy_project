@@ -47,7 +47,8 @@ contract Project {
         auxiliaryToken = auxiliaryToken_;
     }
 
-    function backProject(uint amountBT_, address router_) external {
+    // amountMinMultiplier_ is a multiplier used to decide amountAMin and amountBMin in UniswapV2Router02. Checkout UniswapV2 docs for more detail.
+    function backProject(uint amountBT_, uint amountMinMultiplier_, address router_) external {
         require(block.timestamp < backingCloseTime, "backing ended");
 
         // let this contract be in control of amountBT
@@ -72,7 +73,7 @@ contract Project {
         require(mockWETHToken.increaseAllowance(router_, amounts[1]), "increaseAllowance failed.");
 
         // add liquidity to BT-AT pair
-        uniswapV2Router02.addLiquidity(backingToken, auxiliaryToken, amountBT_/2, amounts[1], amountBT_/2000, amounts[1]/2000, address(this), block.timestamp+300);
+        uniswapV2Router02.addLiquidity(backingToken, auxiliaryToken, amountBT_/2, amounts[1], amountBT_/amountMinMultiplier_, amounts[1]/amountMinMultiplier_, address(this), block.timestamp+300);
 
         // update backer data
         totalBacking += amountBT_;
