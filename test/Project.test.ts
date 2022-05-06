@@ -66,8 +66,7 @@ describe("Project", () => {
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
             await project.startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address);
             expect(await project.minimumBacking()).to.be.equal(BigNumber.from(utils.parseEther("2")));
-            expect((await project.backingTime()).open).to.be.equal(true);
-            expect((await project.backingTime()).closeTime).to.be.above(0);
+            expect(await project.backingCloseTime()).to.be.above(0);
         });
 
         it('reverts startBacking unless msg.sender is the proposer', async () => {

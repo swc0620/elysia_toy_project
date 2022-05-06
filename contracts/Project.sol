@@ -17,12 +17,7 @@ contract Project {
     address public manufacturer;
     uint public minimumBacking;
 
-    struct DueTime {
-        bool open;
-        uint closeTime;
-    }
-
-    DueTime public backingTime;
+    uint public backingCloseTime;
     uint public backersCount;
     mapping(address => uint) public backings;
     uint public totalBacking;
@@ -43,11 +38,8 @@ contract Project {
         _;
     }
 
-    function startBacking(uint backingDuration_, uint minimumBacking_, address pairAddress_, address backingToken_, address auxiliaryToken_) public isProposer {
-        require(backingTime.open == false, "backing has already started");
-        
-        backingTime.open = true;
-        backingTime.closeTime = block.timestamp + backingDuration_;
+    function startBacking(uint backingDuration_, uint minimumBacking_, address pairAddress_, address backingToken_, address auxiliaryToken_) public isProposer {        
+        backingCloseTime = block.timestamp + backingDuration_;
 
         minimumBacking = minimumBacking_;
         pairAddress = pairAddress_;
@@ -56,8 +48,7 @@ contract Project {
     }
 
     function backProject(uint amountBT_, address router_) external {
-        require(backingTime.open == true, "backing has not started");
-        require(block.timestamp < backingTime.closeTime, "backing ended");
+        require(block.timestamp < backingCloseTime, "backing ended");
 
         // let this contract be in control of amountBT
         FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken);
