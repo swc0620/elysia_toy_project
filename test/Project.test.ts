@@ -9,6 +9,7 @@ import { FaucetableERC20 } from "../typechain-types/contracts/test/FaucetableERC
 import { Project } from "../typechain-types/contracts/Project";
 import factoryABI from "../abi/factoryABI.json";
 import pairABI from "../abi/pairABI.json";
+import { UniswapV2PairConfig } from "../typechain-types/contracts/test/UniswapV2PairConfig";
 
 const { deployContract } = waffle;
 
@@ -94,7 +95,7 @@ describe("Project", () => {
                 }
                 const configContractAddress = await project.uniswapV2PairConfigContract();
                 const configContractABI = UniswapV2PairConfigArtifact.abi;
-                const configContract: Contract = await hre.ethers.getContractAt(configContractABI, configContractAddress);
+                const configContract: UniswapV2PairConfig = await hre.ethers.getContractAt(configContractABI, configContractAddress) as UniswapV2PairConfig;
                 await mockDAIToken.connect(proposer).increaseAllowance(configContract.address, BigNumber.from(utils.parseEther("1000")));
                 await mockWETHToken.connect(proposer).increaseAllowance(configContract.address, BigNumber.from(utils.parseEther("1000")));
                 await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, BigNumber.from(utils.parseEther("1000")), BigNumber.from(utils.parseEther("1000")));
