@@ -1,4 +1,4 @@
-import hre, { waffle } from "hardhat";
+import hre, { waffle, ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, utils } from "ethers";
 import ProjectArtifact from "../artifacts/contracts/Project.sol/Project.json";
@@ -60,7 +60,7 @@ describe("Project", () => {
             expect(await project.manufacturer()).to.be.equal(manufacturer.address);
         });
 
-        it('starts backingTime', async () => {
+        it('starts backingCloseTime', async () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
@@ -76,8 +76,12 @@ describe("Project", () => {
             await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("msg.sender is not the proposer");
         });
 
-        it('reverts startBacking() when backingCloseTime == 0', async () => {
-            await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
+        it('reverts backProject() when backingCloseTime == 0', async () => {
+            await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("1")), 2000, routerAddress)).to.be.reverted;
+        });
+
+        it('reverts startVoting() when backingCloseTime == 0', async () => {
+            await expect(project.connect(proposer).startVoting(300)).to.be.reverted;
         });
 
         context('after startBacking() function has been provoked', async () => {
@@ -107,7 +111,7 @@ describe("Project", () => {
                 await ethers.provider.send('evm_increaseTime', [sevenDays]);
                 await ethers.provider.send('evm_mine', []);
     
-                await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
+                await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress)).to.be.reverted;
             });
 
             it('reverts when amountBT_ is less than minimumBacking', async () => {
@@ -176,8 +180,14 @@ describe("Project", () => {
                 expect(await project.backersCount()).to.be.equal(1);
             });
 
-            it('reverts startVote() when block.timestamp < backingTime.closeTime', async () => {
-                await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
+            it('reverts startBacking() when backingCloseTime != 0', async () => {
+                const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
+                const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
+                await expect(project.connect(proposer).startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
+            });
+
+            it('reverts startVoting() when block.timestamp < backingCloseTime', async () => {
+                await expect(project.connect(backer1).startVoting(300)).to.be.reverted;
             });
 
             context('after time longer than backingDuration_ has passed', async () => {
@@ -187,11 +197,24 @@ describe("Project", () => {
                     await ethers.provider.send('evm_mine', []);
                 });
 
-                it('starts votingTime', async () => {
+                it('starts votingCloseTime', async () => {
                     await project.startVoting(300);
 
-                    expect((await project.votingTime()).open).to.be.equal(true);
-                    expect((await project.votingTime()).closeTime).to.be.above(0);
+                    expect(await project.votingCloseTime()).to.be.above(0);
+                });
+
+                it('reverts startVoting() unless msg.sender is the proposer', async () => {
+                    await expect(project.connect(backer1).startVoting(300)).to.be.reverted;
+                });
+
+                context('after startVoting() function has been provoked', async () => {
+                    beforeEach('', async () => {
+                        await project.startVoting(300);
+                    });
+
+                    it('reverts startVoting() when votingCloseTime != 0', async () => {
+                        await expect(project.connect(proposer).startVoting(300)).to.be.reverted;
+                    });
                 });
             });
         });
