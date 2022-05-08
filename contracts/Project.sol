@@ -22,9 +22,9 @@ contract Project {
     mapping(address => uint) public backings;
     uint public totalBacking;
 
-    event BackingCreated(address indexed backerAddress, uint amountBT);
+    uint public votingCloseTime;
 
-    DueTime public votingTime;
+    event BackingCreated(address indexed backerAddress, uint amountBT);
 
     constructor(address proposer_, string memory description_, address manufacturer_) {        
         proposer = proposer_;
@@ -41,6 +41,7 @@ contract Project {
     }
 
     function startBacking(uint backingDuration_, uint minimumBacking_, address pairAddress_, address backingToken_, address auxiliaryToken_) public isProposer {        
+        require(backingCloseTime == 0, "backing has already started");
         backingCloseTime = block.timestamp + backingDuration_;
 
         minimumBacking = minimumBacking_;
@@ -51,7 +52,7 @@ contract Project {
 
     // amountMinMultiplier_ is a multiplier used to decide amountAMin and amountBMin in UniswapV2Router02. Checkout UniswapV2 docs for more detail.
     function backProject(uint amountBT_, uint amountMinMultiplier_, address router_) external {
-        require(block.timestamp < backingCloseTime, "backing ended");
+        require(block.timestamp < backingCloseTime, "backing did not start yet or backing already ended");
 
         // let this contract be in control of amountBT
         FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken);
@@ -88,10 +89,10 @@ contract Project {
     }
 
     function startVoting(uint votingDuration_) external isProposer {
-        require(backingTime.open == true, "backing has not started");
-        require(block.timestamp >= backingTime.closeTime);
+        require(backingCloseTime != 0, "backing did not start yet");
+        require(votingCloseTime == 0, "voting has already started");
+        require(block.timestamp >= backingCloseTime);
 
-        votingTime.open = true;
-        votingTime.closeTime = block.timestamp + votingDuration_;
+        votingCloseTime = block.timestamp + votingDuration_;
     }
 }

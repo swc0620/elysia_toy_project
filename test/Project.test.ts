@@ -69,14 +69,14 @@ describe("Project", () => {
             expect(await project.backingCloseTime()).to.be.above(0);
         });
 
-        it('reverts startBacking unless msg.sender is the proposer', async () => {
+        it('reverts startBacking() unless msg.sender is the proposer', async () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
             await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("msg.sender is not the proposer");
         });
 
-        it('reverts backProject() unless backingTime.open == true', async () => {
+        it('reverts startBacking() when backingCloseTime == 0', async () => {
             await expect(project.connect(backer1).backProject(100, routerAddress)).to.be.reverted;
         });
 
