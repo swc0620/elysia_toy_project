@@ -110,5 +110,7 @@ contract Project {
     function finaliseProject() external isProposer {
         require(approvalCloseTime != 0, "approval did not start");
         require(block.timestamp >= approvalCloseTime, "approval is not closed");
+
+        
     }
 }

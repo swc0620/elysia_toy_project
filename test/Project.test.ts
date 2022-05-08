@@ -234,6 +234,11 @@ describe("Project", () => {
                         expect(await project.approvals(backer1.address)).to.be.equal(true);
                     });
 
+                    it('reverts when one backer tries to approve project twice', async () => {
+                        await project.connect(backer1).approveProject();
+                        await expect(project.connect(backer1).approveProject()).to.be.reverted;
+                    });
+
                     it('reverts finaliseProject() when block.timestamp < approvalCloseTime', async () => {
                         await expect(project.finaliseProject()).to.be.reverted;
                     });
@@ -246,7 +251,11 @@ describe("Project", () => {
                         });
 
                         it('reverts approveProject() when block.timestamp >= approvalCloseTime', async () => {
-                            await expect(project.connect(backer1).approveProject()).to.be.reverted;
+                            await expect(project.connect(proposer).approveProject()).to.be.reverted;
+                        });
+
+                        it('reverts finaliseProject() unless msg.sender is the proposer', async () => {
+                            await expect(project.connect(backer1).finaliseProject()).to.be.reverted;
                         });
                     });
                 });
