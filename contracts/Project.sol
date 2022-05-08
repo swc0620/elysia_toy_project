@@ -24,6 +24,7 @@ contract Project {
 
     uint public approvalCloseTime;
     mapping(address => bool) public approvals;
+    uint public totalApproval;
 
     event BackingCreated(address indexed backerAddress, uint amountBT);
 
@@ -102,5 +103,12 @@ contract Project {
         require(backings[msg.sender] > 0, "msg.sender is not on the backers list");
         require(approvals[msg.sender] == false, "msg.sender has already voted");
 
+        totalApproval += backings[msg.sender];
+        approvals[msg.sender] = true;
+    }
+
+    function finaliseProject() external isProposer {
+        require(approvalCloseTime != 0, "approval did not start");
+        require(block.timestamp >= approvalCloseTime, "approval is not closed");
     }
 }

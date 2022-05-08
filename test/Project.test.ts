@@ -17,7 +17,7 @@ describe("Project", () => {
     let mockDAIToken: FaucetableERC20;
     let mockWETHToken: FaucetableERC20;
 
-    const [admin, proposer, backer1, backer2, manufacturer] = waffle.provider.getWallets();
+    const [admin, proposer, backer1, backer2, passerby, manufacturer] = waffle.provider.getWallets();
 
     const factoryAddress = "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f";
     const routerAddress = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
@@ -84,6 +84,10 @@ describe("Project", () => {
             await expect(project.connect(proposer).startApproval(300)).to.be.reverted;
         });
 
+        it('reverts finaliseProject() when approvalCloseTime == 0', async () => {
+            await expect(project.connect(proposer).finaliseProject()).to.be.reverted;
+        });
+
         context('after startBacking() function has been provoked', async () => {
             beforeEach(async () => {
                 // provoke startBacking()
@@ -104,14 +108,6 @@ describe("Project", () => {
                 await mockDAIToken.connect(proposer).increaseAllowance(configContract.address, utils.parseEther("1000"));
                 await mockWETHToken.connect(proposer).increaseAllowance(configContract.address, utils.parseEther("1000"));
                 await configContract.connect(proposer).addLiquidity(mockDAIToken.address, mockWETHToken.address, routerAddress, utils.parseEther("1000"), utils.parseEther("1000"), utils.parseEther("990"), utils.parseEther("990"));
-            });
-
-            it('reverts backProject() when block.timestamp >= backingTime.closeTime', async () => {
-                const sevenDays = 7 * 24 * 60 * 60;
-                await ethers.provider.send('evm_increaseTime', [sevenDays]);
-                await ethers.provider.send('evm_mine', []);
-    
-                await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress)).to.be.reverted;
             });
 
             it('reverts when amountBT_ is less than minimumBacking', async () => {
@@ -192,9 +188,20 @@ describe("Project", () => {
 
             context('after time longer than backingDuration_ has passed', async () => {
                 beforeEach('', async () => {
+                    // backer1 and backer2 back project                    
+                    await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
+                    await mockDAIToken.connect(backer2).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
+                    await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
+                    await project.connect(backer2).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
+
+                    // time longer than backingDuration_ passed
                     const sevenDays = 7 * 24 * 60 * 60;
                     await ethers.provider.send('evm_increaseTime', [sevenDays]);
                     await ethers.provider.send('evm_mine', []);
+                });
+
+                it('reverts backProject() when block.timestamp >= backingCloseTime', async () => {
+                    await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress)).to.be.reverted;
                 });
 
                 it('starts approvalCloseTime', async () => {
@@ -209,11 +216,38 @@ describe("Project", () => {
 
                 context('after startApproval() function has been provoked', async () => {
                     beforeEach('', async () => {
+                        // provoke startApproval()
                         await project.startApproval(300);
                     });
 
                     it('reverts startApproval() when approvalCloseTime != 0', async () => {
                         await expect(project.connect(proposer).startApproval(300)).to.be.reverted;
+                    });
+
+                    it('reverts approveProject() unless backings[msg.sender] > 0', async () => {
+                        await expect(project.connect(passerby).approveProject()).to.be.reverted;
+                    });
+
+                    it('approves project with voting power relevant to stake of backing', async () => {
+                        await project.connect(backer1).approveProject();
+                        expect(await project.totalApproval()).to.be.equal(await project.backings(backer1.address));
+                        expect(await project.approvals(backer1.address)).to.be.equal(true);
+                    });
+
+                    it('reverts finaliseProject() when block.timestamp < approvalCloseTime', async () => {
+                        await expect(project.finaliseProject()).to.be.reverted;
+                    });
+
+                    context('after time longer than approvalDuration_ has passed', async () => {
+                        beforeEach('', async () => {
+                            const sevenDays = 7 * 24 * 60 * 60;
+                            await ethers.provider.send('evm_increaseTime', [sevenDays]);
+                            await ethers.provider.send('evm_mine', []);
+                        });
+
+                        it('reverts approveProject() when block.timestamp >= approvalCloseTime', async () => {
+                            await expect(project.connect(backer1).approveProject()).to.be.reverted;
+                        });
                     });
                 });
             });
