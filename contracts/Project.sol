@@ -22,7 +22,8 @@ contract Project {
     mapping(address => uint) public backings;
     uint public totalBacking;
 
-    uint public votingCloseTime;
+    uint public approvalCloseTime;
+    mapping(address => bool) public approvals;
 
     event BackingCreated(address indexed backerAddress, uint amountBT);
 
@@ -88,11 +89,18 @@ contract Project {
         emit BackingCreated(backerAddress, amountBT_);
     }
 
-    function startVoting(uint votingDuration_) external isProposer {
+    function startApproval(uint approvalDuration_) external isProposer {
         require(backingCloseTime != 0, "backing did not start yet");
-        require(votingCloseTime == 0, "voting has already started");
+        require(approvalCloseTime == 0, "approval has already started");
         require(block.timestamp >= backingCloseTime);
 
-        votingCloseTime = block.timestamp + votingDuration_;
+        approvalCloseTime = block.timestamp + approvalDuration_;
+    }
+
+    function approveProject() external {
+        require(block.timestamp < approvalCloseTime, "approval did not start yet or backing already ended");
+        require(backings[msg.sender] > 0, "msg.sender is not on the backers list");
+        require(approvals[msg.sender] == false, "msg.sender has already voted");
+
     }
 }

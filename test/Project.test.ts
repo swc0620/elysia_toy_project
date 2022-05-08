@@ -80,8 +80,8 @@ describe("Project", () => {
             await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("1")), 2000, routerAddress)).to.be.reverted;
         });
 
-        it('reverts startVoting() when backingCloseTime == 0', async () => {
-            await expect(project.connect(proposer).startVoting(300)).to.be.reverted;
+        it('reverts startApproval() when backingCloseTime == 0', async () => {
+            await expect(project.connect(proposer).startApproval(300)).to.be.reverted;
         });
 
         context('after startBacking() function has been provoked', async () => {
@@ -186,8 +186,8 @@ describe("Project", () => {
                 await expect(project.connect(proposer).startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
             });
 
-            it('reverts startVoting() when block.timestamp < backingCloseTime', async () => {
-                await expect(project.connect(backer1).startVoting(300)).to.be.reverted;
+            it('reverts startApproval() when block.timestamp < backingCloseTime', async () => {
+                await expect(project.connect(backer1).startApproval(300)).to.be.reverted;
             });
 
             context('after time longer than backingDuration_ has passed', async () => {
@@ -197,23 +197,23 @@ describe("Project", () => {
                     await ethers.provider.send('evm_mine', []);
                 });
 
-                it('starts votingCloseTime', async () => {
-                    await project.startVoting(300);
+                it('starts approvalCloseTime', async () => {
+                    await project.startApproval(300);
 
-                    expect(await project.votingCloseTime()).to.be.above(0);
+                    expect(await project.approvalCloseTime()).to.be.above(0);
                 });
 
-                it('reverts startVoting() unless msg.sender is the proposer', async () => {
-                    await expect(project.connect(backer1).startVoting(300)).to.be.reverted;
+                it('reverts startApproval() unless msg.sender is the proposer', async () => {
+                    await expect(project.connect(backer1).startApproval(300)).to.be.reverted;
                 });
 
-                context('after startVoting() function has been provoked', async () => {
+                context('after startApproval() function has been provoked', async () => {
                     beforeEach('', async () => {
-                        await project.startVoting(300);
+                        await project.startApproval(300);
                     });
 
-                    it('reverts startVoting() when votingCloseTime != 0', async () => {
-                        await expect(project.connect(proposer).startVoting(300)).to.be.reverted;
+                    it('reverts startApproval() when approvalCloseTime != 0', async () => {
+                        await expect(project.connect(proposer).startApproval(300)).to.be.reverted;
                     });
                 });
             });
