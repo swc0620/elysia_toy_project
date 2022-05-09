@@ -80,7 +80,7 @@ describe("Project", () => {
         });
 
         it('reverts finaliseProject() when approvalCloseTime == 0', async () => {
-            await expect(project.connect(proposer).finaliseProject(routerAddress, factoryAddress)).to.be.revertedWith("approval did not start yet or backing already ended");
+            await expect(project.connect(proposer).finaliseProject(routerAddress, factoryAddress)).to.be.revertedWith("approval did not start");
         });
 
         context('after startBacking() function has been provoked', async () => {
@@ -175,7 +175,7 @@ describe("Project", () => {
             });
 
             it('reverts startApproval() when block.timestamp < backingCloseTime', async () => {
-                await expect(project.connect(backer1).startApproval(300)).to.be.reverted;
+                await expect(project.connect(proposer).startApproval(300)).to.be.revertedWith("backing is not closed");
             });
 
             context('after time longer than backingDuration_ has passed', async () => {
@@ -193,7 +193,7 @@ describe("Project", () => {
                 });
 
                 it('reverts backProject() when block.timestamp >= backingCloseTime', async () => {
-                    await expect(project.connect(backer1).backProject(utils.parseEther("100"), 2000, routerAddress)).to.be.reverted;
+                    await expect(project.connect(backer1).backProject(utils.parseEther("100"), 2000, routerAddress)).to.be.revertedWith("backing did not start yet or backing already ended");
                 });
 
                 it('starts approvalCloseTime', async () => {
@@ -203,7 +203,7 @@ describe("Project", () => {
                 });
 
                 it('reverts startApproval() unless msg.sender is the proposer', async () => {
-                    await expect(project.connect(backer1).startApproval(300)).to.be.reverted;
+                    await expect(project.connect(backer1).startApproval(300)).to.be.revertedWith("msg.sender is not the proposer");
                 });
 
                 context('after startApproval() function has been provoked', async () => {
@@ -213,11 +213,11 @@ describe("Project", () => {
                     });
 
                     it('reverts startApproval() when approvalCloseTime != 0', async () => {
-                        await expect(project.connect(proposer).startApproval(300)).to.be.reverted;
+                        await expect(project.connect(proposer).startApproval(300)).to.be.revertedWith("approval has already started");
                     });
 
                     it('reverts approveProject() unless backings[msg.sender] > 0', async () => {
-                        await expect(project.connect(passerby).approveProject()).to.be.reverted;
+                        await expect(project.connect(passerby).approveProject()).to.be.revertedWith("msg.sender is not on the backers list");
                     });
 
                     it('approves project with voting power relevant to stake of backing', async () => {
@@ -228,11 +228,11 @@ describe("Project", () => {
 
                     it('reverts when one backer tries to approve project twice', async () => {
                         await project.connect(backer1).approveProject();
-                        await expect(project.connect(backer1).approveProject()).to.be.reverted;
+                        await expect(project.connect(backer1).approveProject()).to.be.revertedWith("msg.sender has already voted");
                     });
 
                     it('reverts finaliseProject() when block.timestamp < approvalCloseTime', async () => {
-                        await expect(project.finaliseProject(routerAddress, factoryAddress)).to.be.reverted;
+                        await expect(project.finaliseProject(routerAddress, factoryAddress)).to.be.revertedWith("approval is not closed");
                     });
 
                     context('after time longer than approvalDuration_ has passed', async () => {
@@ -243,11 +243,11 @@ describe("Project", () => {
                         });
 
                         it('reverts approveProject() when block.timestamp >= approvalCloseTime', async () => {
-                            await expect(project.connect(proposer).approveProject()).to.be.reverted;
+                            await expect(project.connect(proposer).approveProject()).to.be.revertedWith("approval did not start yet or backing already ended");
                         });
 
                         it('reverts finaliseProject() unless msg.sender is the proposer', async () => {
-                            await expect(project.connect(backer1).finaliseProject(routerAddress, factoryAddress)).to.be.reverted;
+                            await expect(project.connect(backer1).finaliseProject(routerAddress, factoryAddress)).to.be.revertedWith("msg.sender is not the proposer");
                         });
 
                         it('is able to finalise project', async () => {

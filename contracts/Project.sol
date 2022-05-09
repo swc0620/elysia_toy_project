@@ -99,7 +99,7 @@ contract Project {
     function startApproval(uint approvalDuration_) external isProposer {
         require(backingCloseTime != 0, "backing did not start yet");
         require(approvalCloseTime == 0, "approval has already started");
-        require(block.timestamp >= backingCloseTime);
+        require(block.timestamp >= backingCloseTime, "backing is not closed");
 
         approvalCloseTime = block.timestamp + approvalDuration_;
     }
