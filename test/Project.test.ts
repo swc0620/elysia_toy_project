@@ -1,7 +1,6 @@
 import hre, { waffle } from "hardhat";
 import { expect } from "chai";
 import { Contract, utils } from "ethers";
-
 import ProjectArtifact from "../artifacts/contracts/Project.sol/Project.json";
 import UniswapV2PairConfigArtifact from "../artifacts/contracts/test/UniswapV2PairConfig.sol/UniswapV2PairConfig.json";
 import FaucetableERC20Artifact from "../artifacts/contracts/test/FaucetableERC20.sol/FaucetableERC20.json";
@@ -74,7 +73,7 @@ describe("Project", () => {
             const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
             
             const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
+            await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("msg.sender is not the proposer");
         });
 
         context('after startBacking() function has been provoked', async () => {
@@ -100,7 +99,7 @@ describe("Project", () => {
             });
 
             it('reverts when amountBT_ is less than minimumBacking', async () => {
-                await expect(project.backProject(utils.parseEther("1"), 2000, routerAddress)).to.be.reverted;
+                await expect(project.backProject(utils.parseEther("1"), 2000, routerAddress)).to.be.revertedWith("unsufficient backing.");
             });
 
             it('is able to back project', async () => {

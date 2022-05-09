@@ -34,7 +34,7 @@ contract Project {
     }
 
     modifier isProposer {
-        require(msg.sender == proposer);
+        require(msg.sender == proposer, "msg.sender is not the proposer");
         _;
     }
 
