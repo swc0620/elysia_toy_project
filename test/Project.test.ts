@@ -60,40 +60,33 @@ describe("Project", () => {
             expect(await project.manufacturer()).to.be.equal(manufacturer.address);
         });
 
-        it('starts backingCloseTime', async () => {
-            const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
-            
-            const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await project.startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address);
+
+        it('starts backingCloseTime', async () => {            
+            await project.startBacking(300, utils.parseEther("2"), mockDAIToken.address, mockWETHToken.address);
             expect(await project.minimumBacking()).to.be.equal(utils.parseEther("2"));
             expect(await project.backingCloseTime()).to.be.above(0);
         });
 
         it('reverts startBacking() unless msg.sender is the proposer', async () => {
-            const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
-            
-            const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-            await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("msg.sender is not the proposer");
+            await expect(project.connect(backer1).startBacking(300, utils.parseEther("2"), mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("msg.sender is not the proposer");
         });
 
         it('reverts backProject() when backingCloseTime == 0', async () => {
-            await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("1")), 2000, routerAddress)).to.be.reverted;
+            await expect(project.connect(backer1).backProject(utils.parseEther("1"), 2000, routerAddress)).to.be.revertedWith("backing did not start yet or backing already ended");
         });
 
         it('reverts startApproval() when backingCloseTime == 0', async () => {
-            await expect(project.connect(proposer).startApproval(300)).to.be.reverted;
+            await expect(project.connect(proposer).startApproval(300)).to.be.revertedWith("backing did not start yet");
         });
 
         it('reverts finaliseProject() when approvalCloseTime == 0', async () => {
-            await expect(project.connect(proposer).finaliseProject()).to.be.reverted;
+            await expect(project.connect(proposer).finaliseProject(routerAddress, factoryAddress)).to.be.revertedWith("approval did not start yet or backing already ended");
         });
 
         context('after startBacking() function has been provoked', async () => {
             beforeEach(async () => {
                 // provoke startBacking()
-                const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
-                const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-                await project.startBacking(300, utils.parseEther("2"), pairAddress, mockDAIToken.address, mockWETHToken.address);
+                await project.startBacking(300, utils.parseEther("2"), mockDAIToken.address, mockWETHToken.address);
 
                 // initially distribute MDAI to backers
                 await mockDAIToken.connect(backer1).faucet(utils.parseEther("100"));
@@ -158,6 +151,7 @@ describe("Project", () => {
                 expect(await project.backings(backer1.address)).to.be.equal(utils.parseEther("100"));
                 expect(await project.backings(backer2.address)).to.be.equal(utils.parseEther("100"));
                 expect(await project.backersCount()).to.be.equal(2);
+                expect(await project.totalLiquidity()).to.be.above(0);
             });
 
             it('counts backing only once per backer', async () => {
@@ -177,9 +171,7 @@ describe("Project", () => {
             });
 
             it('reverts startBacking() when backingCloseTime != 0', async () => {
-                const factoryContract: Contract = await hre.ethers.getContractAt(factoryABI, factoryAddress);
-                const pairAddress = await factoryContract.getPair(mockDAIToken.address, mockWETHToken.address);
-                await expect(project.connect(proposer).startBacking(300, BigNumber.from(utils.parseEther("2")), pairAddress, mockDAIToken.address, mockWETHToken.address)).to.be.reverted;
+                await expect(project.connect(proposer).startBacking(300, utils.parseEther("2"), mockDAIToken.address, mockWETHToken.address)).to.be.revertedWith("backing has already started");
             });
 
             it('reverts startApproval() when block.timestamp < backingCloseTime', async () => {
@@ -189,10 +181,10 @@ describe("Project", () => {
             context('after time longer than backingDuration_ has passed', async () => {
                 beforeEach('', async () => {
                     // backer1 and backer2 back project                    
-                    await mockDAIToken.connect(backer1).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
-                    await mockDAIToken.connect(backer2).increaseAllowance(project.address, BigNumber.from(utils.parseEther("100")));
-                    await project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
-                    await project.connect(backer2).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress);
+                    await mockDAIToken.connect(backer1).increaseAllowance(project.address, utils.parseEther("100"));
+                    await mockDAIToken.connect(backer2).increaseAllowance(project.address, utils.parseEther("100"));
+                    await project.connect(backer1).backProject(utils.parseEther("100"), 2000, routerAddress);
+                    await project.connect(backer2).backProject(utils.parseEther("100"), 2000, routerAddress);
 
                     // time longer than backingDuration_ passed
                     const sevenDays = 7 * 24 * 60 * 60;
@@ -201,7 +193,7 @@ describe("Project", () => {
                 });
 
                 it('reverts backProject() when block.timestamp >= backingCloseTime', async () => {
-                    await expect(project.connect(backer1).backProject(BigNumber.from(utils.parseEther("100")), 2000, routerAddress)).to.be.reverted;
+                    await expect(project.connect(backer1).backProject(utils.parseEther("100"), 2000, routerAddress)).to.be.reverted;
                 });
 
                 it('starts approvalCloseTime', async () => {
@@ -240,7 +232,7 @@ describe("Project", () => {
                     });
 
                     it('reverts finaliseProject() when block.timestamp < approvalCloseTime', async () => {
-                        await expect(project.finaliseProject()).to.be.reverted;
+                        await expect(project.finaliseProject(routerAddress, factoryAddress)).to.be.reverted;
                     });
 
                     context('after time longer than approvalDuration_ has passed', async () => {
@@ -255,7 +247,11 @@ describe("Project", () => {
                         });
 
                         it('reverts finaliseProject() unless msg.sender is the proposer', async () => {
-                            await expect(project.connect(backer1).finaliseProject()).to.be.reverted;
+                            await expect(project.connect(backer1).finaliseProject(routerAddress, factoryAddress)).to.be.reverted;
+                        });
+
+                        it('is able to finalise project', async () => {
+                            await project.connect(proposer).finaliseProject(routerAddress, factoryAddress);
                         });
                     });
                 });
