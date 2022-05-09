@@ -1,6 +1,6 @@
 import { waffle } from "hardhat";
 import { expect } from "chai";
-import { BigNumber, utils } from "ethers";
+import { utils } from "ethers";
 
 import FaucetableERC20Artifact from "../artifacts/contracts/test/FaucetableERC20.sol/FaucetableERC20.json";
 import { FaucetableERC20 } from "../typechain-types/contracts/test/FaucetableERC20";
@@ -37,27 +37,27 @@ describe("FaucetableERC20", () => {
 
     context('when new MockDAIToken is minted', async () => {
         it('has given data', async () => {
-            expect(await mockDAIToken.totalSupply()).to.be.equal(BigNumber.from(utils.parseEther("10000")));
+            expect(await mockDAIToken.totalSupply()).to.be.equal(utils.parseEther("10000"));
             expect(await mockDAIToken.name()).to.be.equal("MockDAIToken");
             expect(await mockDAIToken.symbol()).to.be.equal("MDAI");
         });
 
         it('distributes MDAI via faucet', async () => {
-            await mockDAIToken.connect(backer1).faucet(BigNumber.from(utils.parseEther("100")));
-            expect(await mockDAIToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("100")));
+            await mockDAIToken.connect(backer1).faucet(utils.parseEther("100"));
+            expect(await mockDAIToken.balanceOf(backer1.address)).to.be.equal(utils.parseEther("100"));
         });
     });
     
     context('when new MockWETHToken is minted', async () => {
         it('has given data', async () => {
-            expect(await mockWETHToken.totalSupply()).to.be.equal(BigNumber.from(utils.parseEther("10000")));
+            expect(await mockWETHToken.totalSupply()).to.be.equal(utils.parseEther("10000"));
             expect(await mockWETHToken.name()).to.be.equal("MockWETHToken");
             expect(await mockWETHToken.symbol()).to.be.equal("MWETH");
         });
 
         it('distributes MWETH via faucet', async () => {
-            await mockWETHToken.connect(backer1).faucet(BigNumber.from(utils.parseEther("100")));
-            expect(await mockWETHToken.balanceOf(backer1.address)).to.be.equal(BigNumber.from(utils.parseEther("100")));
+            await mockWETHToken.connect(backer1).faucet(utils.parseEther("100"));
+            expect(await mockWETHToken.balanceOf(backer1.address)).to.be.equal(utils.parseEther("100"));
         });
     });
 });
