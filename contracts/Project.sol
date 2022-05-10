@@ -22,14 +22,19 @@ contract Project {
     uint public backersCount;
     mapping(address => uint) public backings;
     uint public totalBacking;
+    uint public totalLiquidity;
 
     uint public approvalCloseTime;
     mapping(address => bool) public approvals;
     uint public totalApproval;
 
-    uint public totalLiquidity;
+    bool public projectNotFinalised;
 
+    event BackingStarted(uint backingCloseTime, uint backingDuration_);
     event BackingCreated(address indexed backerAddress, uint amountBT);
+    event ApprovalStarted(uint approvalCloseTime, uint approvalDuration_);
+    event ApprovalCreated(address indexed backerAddress);
+    event ProjectFinalised();
 
     constructor(address proposer_, string memory description_, address manufacturer_) {        
         proposer = proposer_;
@@ -52,6 +57,8 @@ contract Project {
         minimumBacking = minimumBacking_;
         backingToken = backingToken_;
         auxiliaryToken = auxiliaryToken_;
+
+        emit BackingStarted(backingCloseTime, backingDuration_);
     }
 
     // amountMinMultiplier_ is a multiplier used to decide amountAMin and amountBMin in UniswapV2Router02. Checkout UniswapV2 docs for more detail.
@@ -102,6 +109,8 @@ contract Project {
         require(block.timestamp >= backingCloseTime, "backing is not closed");
 
         approvalCloseTime = block.timestamp + approvalDuration_;
+
+        emit ApprovalStarted(approvalCloseTime, approvalDuration_);
     }
 
     function approveProject() external {
@@ -111,6 +120,8 @@ contract Project {
 
         totalApproval += backings[msg.sender];
         approvals[msg.sender] = true;
+
+        emit ApprovalCreated(msg.sender);
     }
 
     function finaliseProject(address router_, address factory_) external isProposer {
@@ -125,5 +136,25 @@ contract Project {
         uint amountBT;
         uint amountAT;
         (amountBT, amountAT) = uniswapV2Router02.removeLiquidity(backingToken, auxiliaryToken, totalLiquidity, 0, 0, address(this), block.timestamp+300);
+        totalLiquidity = 0;
+
+        // swap BT-AT
+        FaucetableERC20 mockWETHToken = FaucetableERC20(auxiliaryToken);
+        require(mockWETHToken.increaseAllowance(router_, amountAT), "increaseAllowance failed.");
+        address[] memory path = new address[](2);
+        path[0] = auxiliaryToken;
+        path[1] = backingToken;
+        // amounts[0]: amount of input token, amounts[1]: amount of output token
+        uint[] memory amounts = uniswapV2Router02.swapExactTokensForTokens(amountAT, 1, path, address(this), block.timestamp+300);
+        
+        // check approval result and send backings to the manufacturer if the project is approved
+        if (totalApproval >= totalBacking / 2) {
+            FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken);
+            mockDAIToken.transfer(manufacturer, amountBT + amounts[1]);
+        } else {
+            projectNotFinalised = true;
+        }
+
+        emit ProjectFinalised();
     }
 }
