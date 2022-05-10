@@ -157,4 +157,12 @@ contract Project {
 
         emit ProjectFinalised();
     }
+
+    function retrieveBacking() external {
+        require(projectNotFinalised == true, "project is not finalised");
+        require(backings[msg.sender] > 0, "msg.sender is not on the backers list");
+
+        FaucetableERC20 mockDAIToken = FaucetableERC20(backingToken);
+        mockDAIToken.transfer(msg.sender, backings[msg.sender]);
+    }
 }

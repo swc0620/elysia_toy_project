@@ -274,6 +274,10 @@ describe("Project", () => {
                             expect(await project.projectNotFinalised()).to.be.equal(false);
                             await expect(finaliseProjectTx).to.emit(project, "ProjectFinalised");
                         });
+
+                        it('reverts retrieveBacking() when projectNotFinalised == false', async () => {
+                            await expect(project.connect(backer1).retrieveBacking()).to.be.revertedWith("project is not finalised");
+                        });
                     });
 
                     context('when only one backer approved the project and time longer than approvalDuration_ passed', async () => {
@@ -306,6 +310,39 @@ describe("Project", () => {
                             expect(await project.projectNotFinalised()).to.be.equal(true);
                             await expect(finaliseProjectTx).to.emit(project, "ProjectFinalised");
                         });
+                    });
+
+                    context('after time longer than approvalDuration_ has passed and the project is not finalised', async () => {
+                        beforeEach('', async () => {
+                            const sevenDays = 7 * 24 * 60 * 60;
+                            await ethers.provider.send('evm_increaseTime', [sevenDays]);
+                            await ethers.provider.send('evm_mine', []);
+    
+                            await project.connect(proposer).finaliseProject(routerAddress, factoryAddress);
+                        });
+
+                        it('reverts approveProject() unless backings[msg.sender] > 0', async () => {
+                            await expect(project.connect(passerby).retrieveBacking()).to.be.revertedWith("msg.sender is not on the backers list");
+                        });
+
+                        it('is able to retrieve backing', async () => {
+                            const retrieveBackingTx = await project.connect(backer1).retrieveBacking();
+                            expect(await mockDAIToken.balanceOf(backer1.address)).to.be.above(0);
+                            await expect(retrieveBackingTx)
+                                .to.emit(mockDAIToken, 'Transfer').withArgs(project.address, backer1.address, utils.parseEther("100"));
+                        });
+
+                        // Not possible due to slippage
+                        // it('is able for both backers to retrieve their own backings', async () => {
+                        //     const retrieveBackingTx1 = await project.connect(backer1).retrieveBacking();
+                        //     const retrieveBackingTx2 = await project.connect(backer2).retrieveBacking();
+                        //     expect(await mockDAIToken.balanceOf(backer1.address)).to.be.above(0);
+                        //     expect(await mockDAIToken.balanceOf(backer2.address)).to.be.above(0);
+                        //     await expect(retrieveBackingTx1)
+                        //         .to.emit(mockDAIToken, 'Transfer').withArgs(project.address, backer1.address, utils.parseEther("100"));
+                        //     await expect(retrieveBackingTx2)
+                        //         .to.emit(mockDAIToken, 'Transfer').withArgs(project.address, backer1.address, utils.parseEther("100"));
+                        // });
                     });
                 });
             });
