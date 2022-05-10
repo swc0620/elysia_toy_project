@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract MockDAIToken is ERC20 {
+contract FaucetableERC20 is ERC20 {
     constructor(
         string memory name_, 
         string memory symbol_
@@ -11,7 +11,7 @@ contract MockDAIToken is ERC20 {
         _mint(address(this), 1e22);
     }
 
-    function faucet() external {
-        _transfer(address(this), msg.sender, 1e18);
+    function faucet(uint amount_) external {
+        _transfer(address(this), msg.sender, amount_);
     }
 }
